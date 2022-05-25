@@ -1,5 +1,5 @@
 # P7_OpenClassrooms
-Repository pour P7 - Parcours Data Science - OpenCLassrooms
+Repository pour P7 - Parcours Data Science - OpenClassrooms
 Projet 7 du Parcours Data Science d'OpenClassrooms.
 
 Lien pour télécharger les datasets : https://www.kaggle.com/c/home-credit-default-risk/data
