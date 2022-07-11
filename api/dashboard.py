@@ -44,7 +44,7 @@ clt = data_predict.drop(columns='TARGET').values
 distance = np.square(df_neighbors - clt).sum(axis=1)
 
 # On charge notre modèle de prédiction
-clf = pickle.load(open('static/xgboostclassifier.pkl','rb'))
+clf = pickle.load(open('api/static/xgboostclassifier.pkl','rb'))
 
 # Nos prédictions et leurs probabilités
 data_predict.set_index('SK_ID_CURR', inplace=True)
@@ -59,7 +59,7 @@ data_pret['PREDICTIONS'] = predictions
 data_pret.loc[data_pret['PREDICTIONS_PROBA'] >= 0.57, 'PREDICTIONS'] = 0
 data_pret.loc[data_pret['PREDICTIONS_PROBA'] < 0.57, 'PREDICTIONS'] = 1
 
-image = Image.open('static/logo_pret_a_depenser.png')
+image = Image.open('api/static/logo_pret_a_depenser.png')
 
 with st.sidebar:
 
@@ -79,8 +79,6 @@ with st.sidebar:
     if st.checkbox('Numéros de prêts similaires :'):
         # Et à ses voisins
         st.write('Liste des prêts similaires :', neighbors)
-
-data_clt = data_clt.transpose()
 
 if st.checkbox('Montrer information prêt ?'):
     st.subheader('Informations prêt :')
@@ -107,6 +105,7 @@ with col2:
 
     st.plotly_chart(fig1)
 
+data_pret.drop(columns=['PREDICTIONS_PROBA', 'PREDICTIONS'], inplace=True)
 
 # Deuxième graph
 
@@ -160,26 +159,24 @@ if st.checkbox('Regarder la distribution de tous nos clients :'):
     option = st.selectbox('Variable à choisir :', tuple(options))
    
     if option in option_bis:
-        df_change_prets = df_pret.copy()
 
         fig2, ax = plt.subplots()
         ax.set_xlabel('Clients', fontsize=17)
         ax.set_ylabel(option, fontsize=17)
-        client = (df_change_prets[df_change_prets['ID_PRET']== int(loan_id)][option]).values[0]
+        client = (df_pret[df_pret['ID_PRET']== int(loan_id)][option]).values[0]
         ax.axhline(y=client, color='r', label='axhline - full height')
-        ax = plt.boxplot(df_change_prets[option], showfliers=False)
+        ax = plt.boxplot(df_pret[option], showfliers=False)
 
         st.pyplot(fig2)
     
     else:
-        df_change_clts = df_client.copy()
 
         fig2, ax = plt.subplots()
         ax.set_xlabel('Clients', fontsize=17)
         ax.set_ylabel(option, fontsize=17)
-        client = (df_change_clts[df_change_clts['ID_PRET']== int(loan_id)][option]).values[0]
+        client = (df_client[df_client['ID_PRET']== int(loan_id)][option]).values[0]
         ax.axhline(y=client, color='r', label='axhline - full height')
-        ax = plt.boxplot(df_change_clts[option], showfliers=False)
+        ax = plt.boxplot(df_client[option], showfliers=False)
 
         st.pyplot(fig2)
 
@@ -187,19 +184,24 @@ if st.checkbox('Regarder la distribution de tous nos clients :'):
 # Troisième graph
 st.subheader('Les variables les plus importantes')
 
-df_predict_change = df_predict.copy()
-list_index_val = [x for x in range(df_predict_change.shape[0])]
-df_predict_change['INDEX_VAL'] = list_index_val
+list_index_val = [x for x in range(df_predict.shape[0])]
+df_predict['INDEX_VAL'] = list_index_val
 
-index_value = df_predict_change.loc[df_predict_change['SK_ID_CURR'] == loan_id, 'INDEX_VAL'].values[0]
+index_value = df_predict.loc[df_predict['SK_ID_CURR'] == loan_id, 'INDEX_VAL'].values[0]
+df_predict.drop(columns=['INDEX_VAL'], inplace=True)
 
 # On charge notre modèle de prédiction
-explainer = pickle.load(open('static/shap_explainer.pkl','rb'))
-fig4, ax = plt.subplots()
+@st.cache
+def load_explainer():
+    model_explainer = pickle.load(open('api/static/shap_explainer.pkl','rb'))
+    return model_explainer
+explainer = pickle.load(open('api/static/shap_explainer.pkl','rb'))
+
+fig3, ax = plt.subplots()
 
 ax.set_xlabel('\nImportance des variables dans la décision d\'octroi de prêt', fontsize=17)
 ax.set_ylabel('Variables', fontsize=17)
 
-l = st.slider("Nombre de variables à afficher", min_value=1, max_value=15, value=10)
-fig4 = shap.plots.waterfall(explainer[index_value], max_display=l)
-st.pyplot(fig4)
+l = st.slider("Nombre de variables à afficher", min_value=1, max_value=15, value=5)
+fig3 = shap.plots.waterfall(explainer[index_value], max_display=l)
+st.pyplot(fig3)
