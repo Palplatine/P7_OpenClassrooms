@@ -59,7 +59,7 @@ data_pret['PREDICTIONS'] = predictions
 data_pret.loc[data_pret['PREDICTIONS_PROBA'] >= 0.57, 'PREDICTIONS'] = 0
 data_pret.loc[data_pret['PREDICTIONS_PROBA'] < 0.57, 'PREDICTIONS'] = 1
 
-image = Image.open('api/static/logo_pret_a_depenser.png')
+image = Image.open('static/logo_pret_a_depenser.png')
 
 with st.sidebar:
 
@@ -184,18 +184,21 @@ if st.checkbox('Regarder la distribution de tous nos clients :'):
 # Troisième graph
 st.subheader('Les variables les plus importantes')
 
-list_index_val = [x for x in range(df_predict.shape[0])]
-df_predict['INDEX_VAL'] = list_index_val
+# list_index_val = [x for x in range(df_predict.shape[0])]
+# df_predict['INDEX_VAL'] = list_index_val
 
-index_value = df_predict.loc[df_predict['SK_ID_CURR'] == loan_id, 'INDEX_VAL'].values[0]
-df_predict.drop(columns=['INDEX_VAL'], inplace=True)
+# index_value = df_predict.loc[df_predict['SK_ID_CURR'] == loan_id, 'INDEX_VAL'].values[0]
+# df_predict.drop(columns=['INDEX_VAL'], inplace=True)
 
-# On charge notre modèle de prédiction
-@st.cache
-def load_explainer():
-    model_explainer = pickle.load(open('api/static/shap_explainer.pkl','rb'))
-    return model_explainer
+# On charge notre explainer
 explainer = pickle.load(open('api/static/shap_explainer.pkl','rb'))
+
+# values = data_predict.iloc[0, :].to_frame().transpose()
+
+shap_values = explainer(data_predict.drop(columns='TARGET'))
+shap_values.values = shap_values.values.reshape(-1)
+shap_values.base_values = shap_values.base_values[0]
+shap_values.data = shap_values.data.reshape(-1)
 
 fig3, ax = plt.subplots()
 
@@ -203,5 +206,5 @@ ax.set_xlabel('\nImportance des variables dans la décision d\'octroi de prêt',
 ax.set_ylabel('Variables', fontsize=17)
 
 l = st.slider("Nombre de variables à afficher", min_value=1, max_value=15, value=5)
-fig3 = shap.plots.waterfall(explainer[index_value], max_display=l)
+fig3 = shap.plots.waterfall(shap_values, max_display=l)
 st.pyplot(fig3)
