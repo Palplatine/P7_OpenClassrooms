@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+    
+    <head>
+        <meta charset="UTF-8">
+        <title>API Projet 7 OpenClassrooms</title>
+        <link rel="stylesheet" type="text/css" href="/static/style.css">
+        <link rel="stylesheet" type="text/css" href="/static/dashboard.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">  
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 p-0">
+                    <header class="mb-4">
+                        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                            <a class="navbar-brand" href="#">Prêt à dépenser</a>
+                            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                                <div class="navbar-nav ml-auto mr-3">
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                </div>
+            </div>
+        <h1>Peut-on accorder un crédit ?</h1>
+        <img src="static/logo_pret_a_depenser.png" alt="logo entreprise"/>
+        
+        <form action="{{url_for('index')}}" method="post">
+            <label for="loan_id">Entrer le numéro de prêt du client :</label><br>
+            <input type="text" name="loan_id" id="loan_id"><br>
+            <input type="submit" value="Submit">
+        <br>
+        <br>
+        <p><u><strong>Attention</strong></u></p>
+        <p><strong>L'identifiant de prêt fourni n'est pas correcte !</strong></p>
+        <br>
+        </form>
+
+    </body>
+
+</html>
