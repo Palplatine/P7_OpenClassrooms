@@ -13,7 +13,7 @@ def index():
     if request.method == 'POST':
         loan_id = request.form['loan_id']
 
-        df_predict = pd.read_csv('static/data_preprocessed.csv')
+        df_predict = pd.read_csv('static/data_preprocessed_sample.csv')
         df_predict.drop(columns=['Unnamed: 0', 'index'], inplace=True)
 
 
@@ -56,5 +56,5 @@ def index():
     else:
         return render_template("submitted.html")
 
-# if __name__=='__main__':
-#     app.run(port=3000, debug=True)
+if __name__=='__main__':
+    app.run(debug=True)
