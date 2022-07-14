@@ -15,7 +15,7 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 
 st.title("Prêt à dépenser : dashboard relation client")
 
-st.number_input("ID du prêt", min_value=100002, value=100002, step=1, format="%d", key="loan_id")
+st.number_input("ID du prêt", min_value=100001, value=100026, step=1, format="%d", key="loan_id")
 loan_id = st.session_state.loan_id
 
 @st.cache
