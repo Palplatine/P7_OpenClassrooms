@@ -28,7 +28,6 @@ def load_data():
 
     df_predict = pd.read_csv('static/data_preprocessed_sample.csv')
     # df_predict.drop(columns=['Unnamed: 0', 'index'], inplace=True)
-    df_predict.drop(columns=['index'], inplace=True)
     return df_client, df_pret, df_predict
 
 # On charge le jeu de données pour nos visuels et le jeu de données pour les prédictions 
