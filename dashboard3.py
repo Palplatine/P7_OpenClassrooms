@@ -33,6 +33,8 @@ def load_data():
 # On charge le jeu de données pour nos visuels et le jeu de données pour les prédictions 
 df_client, df_pret, df_predict = load_data()
 
+st.write(df_predict.head(3))
+
 if loan_id in df_predict['SK_ID_CURR'].unique():
 
     # On s'intéresse à un prêt en particulier
