@@ -7,7 +7,6 @@ from PIL import Image
 import shap
 import streamlit as st
 
-
 # On supprime les avertissements nous indiquant que l'on change les valeurs de notre jeu de données d'origine
 pd.options.mode.chained_assignment = None
 
@@ -75,7 +74,7 @@ if loan_id in df_predict['SK_ID_CURR'].unique():
             st.subheader('Informations client :')
             st.dataframe(data_clt.astype(str))
 
-        n_neighbors = st.slider("Nombre de voisins :", min_value=1, max_value=30, value=10)
+        n_neighbors = st.slider("Nombre de voisins :", min_value=10, max_value=30, value=10)
         neighbors = (-distance).nlargest(n_neighbors)
         neighbors = neighbors.index.values.tolist()
 
@@ -124,31 +123,33 @@ if loan_id in df_predict['SK_ID_CURR'].unique():
         options.extend(option_bis)
         option = st.selectbox('Variable à choisir :', tuple(options))
     
-        if option in option_bis:
-            df_change_prets = df_pret.copy()
-            df_change_prets = df_change_prets[df_change_prets['ID_PRET'].isin(neighbors)]
+        col1, col2, col3 = st.columns(3)
 
-            fig2, ax = plt.subplots()
-            ax.set_xlabel('Clients', fontsize=17)
-            ax.set_ylabel(option, fontsize=17)
-            client = (df_pret[df_pret['ID_PRET']== int(loan_id)][option]).values[0]
-            ax.axhline(y=client, color='r', label='axhline - full height')
-            ax = plt.boxplot(df_change_prets[option], showfliers=False)
+        with col2:
 
-            st.pyplot(fig2)
-        
-        else:
-            df_change_clts = df_client.copy()
-            df_change_clts = df_change_clts[df_change_clts['ID_PRET'].isin(neighbors)]
+            if option in option_bis:
+                df_change_prets = df_pret.iloc[neighbors, :]
 
-            fig2, ax = plt.subplots()
-            ax.set_xlabel('Clients', fontsize=17)
-            ax.set_ylabel(option, fontsize=17)
-            client = (df_client[df_client['ID_PRET']== int(loan_id)][option]).values[0]
-            ax.axhline(y=client, color='r', label='axhline - full height')
-            ax = plt.boxplot(df_change_clts[option], showfliers=False)
+                fig2, ax = plt.subplots()
+                ax.set_xlabel('Clients', fontsize=17)
+                ax.set_ylabel(option, fontsize=17)
+                client = (df_pret[df_pret['ID_PRET']== int(loan_id)][option]).values[0]
+                ax.axhline(y=client, color='r', label='axhline - full height')
+                ax = plt.boxplot(df_change_prets[option], showfliers=False)
 
-            st.pyplot(fig2)
+                st.pyplot(fig2)
+            
+            else:
+                df_change_clts = df_client.iloc[neighbors, :]
+
+                fig2, ax = plt.subplots()
+                ax.set_xlabel('Clients', fontsize=17)
+                ax.set_ylabel(option, fontsize=17)
+                client = (df_client[df_client['ID_PRET']== int(loan_id)][option]).values[0]
+                ax.axhline(y=client, color='r', label='axhline - full height')
+                ax = plt.boxplot(df_change_clts[option], showfliers=False)
+
+                st.pyplot(fig2)
 
     if st.checkbox('Regarder la distribution de tous nos clients :'):
 
@@ -156,28 +157,32 @@ if loan_id in df_predict['SK_ID_CURR'].unique():
         option_bis = ['MONTANT_CREDIT', 'MONTANT_ANNUITE', 'SCORE_EXT_1', 'SCORE_EXT_2', 'SCORE_EXT_3', 'RETARD_PAIEMENT_MAX', 'RETARD_PAIEMENT_TOTAL']
         options.extend(option_bis)
         option = st.selectbox('Variable à choisir :', tuple(options))
+
+        col1, col2, col3 = st.columns(3)
+
+        with col2:
     
-        if option in option_bis:
+            if option in option_bis:
 
-            fig2, ax = plt.subplots()
-            ax.set_xlabel('Clients', fontsize=17)
-            ax.set_ylabel(option, fontsize=17)
-            client = (df_pret[df_pret['ID_PRET']== int(loan_id)][option]).values[0]
-            ax.axhline(y=client, color='r', label='axhline - full height')
-            ax = plt.boxplot(df_pret[option], showfliers=False)
+                fig2, ax = plt.subplots()
+                ax.set_xlabel('Clients', fontsize=17)
+                ax.set_ylabel(option, fontsize=17)
+                client = (df_pret[df_pret['ID_PRET']== int(loan_id)][option]).values[0]
+                ax.axhline(y=client, color='r', label='axhline - full height')
+                ax = plt.boxplot(df_pret[option], showfliers=False)
 
-            st.pyplot(fig2)
-        
-        else:
+                st.pyplot(fig2)
+            
+            else:
 
-            fig2, ax = plt.subplots()
-            ax.set_xlabel('Clients', fontsize=17)
-            ax.set_ylabel(option, fontsize=17)
-            client = (df_client[df_client['ID_PRET']== int(loan_id)][option]).values[0]
-            ax.axhline(y=client, color='r', label='axhline - full height')
-            ax = plt.boxplot(df_client[option], showfliers=False)
+                fig2, ax = plt.subplots()
+                ax.set_xlabel('Clients', fontsize=17)
+                ax.set_ylabel(option, fontsize=17)
+                client = (df_client[df_client['ID_PRET']== int(loan_id)][option]).values[0]
+                ax.axhline(y=client, color='r', label='axhline - full height')
+                ax = plt.boxplot(df_client[option], showfliers=False)
 
-            st.pyplot(fig2)
+                st.pyplot(fig2)
 
 
     # Troisième graph
