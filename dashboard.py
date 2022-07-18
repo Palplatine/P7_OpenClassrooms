@@ -109,7 +109,7 @@ if loan_id in df_predict['SK_ID_CURR'].unique():
 
     # data_neighbors = df_neighbors[df_neighbors['SK_ID_CURR'].isin(neighbors)]
 
-    st.subheader('Distribution des revenus et revenus du client')
+    st.subheader('Distribution clients')
 
     # Copie pour faire des changements au cas où on aurait besoin de l'initial
 
