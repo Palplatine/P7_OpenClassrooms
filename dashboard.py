@@ -15,24 +15,26 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 
 st.title("Prêt à dépenser : dashboard relation client")
 
+# On choisir le prêt
 st.number_input("ID du prêt", min_value=100001, value=100026, step=1, format="%d", key="loan_id")
 loan_id = st.session_state.loan_id
 
 @st.cache
 def load_data():
-    df_client = pd.read_csv('static/infos_clients_test.csv')
+    df_client = pd.read_csv('static/infos_clients.csv')
     df_client.drop(columns=['Unnamed: 0'], inplace=True)
 
-    df_pret = pd.read_csv('static/infos_prets_test.csv')
+    df_pret = pd.read_csv('static/infos_prets.csv')
     df_pret.drop(columns=['Unnamed: 0'], inplace=True)
 
     df_predict = pd.read_csv('static/data_preprocessed_sample.csv')
     df_predict.drop(columns=['Unnamed: 0', 'index'], inplace=True)
     return df_client, df_pret, df_predict
 
-# On charge le jeu de données pour nos visuels et le jeu de données pour les prédictions 
+# On charge les jeux de données
 df_client, df_pret, df_predict = load_data()
 
+# On vérifie que le prêt est bien dans notre échantillon
 if loan_id in df_predict['SK_ID_CURR'].unique():
 
     # On s'intéresse à un prêt en particulier
@@ -58,9 +60,11 @@ if loan_id in df_predict['SK_ID_CURR'].unique():
     data_pret['PREDICTIONS_PROBA'] = predictions_proba[:, 0]
     data_pret['PREDICTIONS'] = predictions
 
+    # Fonction coût-métier : seuil à 0.57
     data_pret.loc[data_pret['PREDICTIONS_PROBA'] >= 0.57, 'PREDICTIONS'] = 0
     data_pret.loc[data_pret['PREDICTIONS_PROBA'] < 0.57, 'PREDICTIONS'] = 1
 
+    # On ajoute le logo de l'entreprise
     image = Image.open('static/logo_pret_a_depenser.png')
 
     with st.sidebar:
@@ -84,7 +88,7 @@ if loan_id in df_predict['SK_ID_CURR'].unique():
 
     st.subheader('Scoreboard du prêt sélectionné')
 
-    # Premier graph
+    # Scoreboard du prêt
     col1, col2, col3, col4 = st.columns(4)
 
     with col2:
@@ -105,19 +109,12 @@ if loan_id in df_predict['SK_ID_CURR'].unique():
 
     data_pret.drop(columns=['PREDICTIONS_PROBA', 'PREDICTIONS'], inplace=True)
 
-    # Deuxième graph
-
-    # data_neighbors = df_neighbors[df_neighbors['SK_ID_CURR'].isin(neighbors)]
-
+    # Graphiques de distribution de nos clients
     st.subheader('Distribution clients')
 
-    # Copie pour faire des changements au cas où on aurait besoin de l'initial
-
-    # On choisit entre tous les clients et seulement quelques voisins
-
     if st.checkbox('Regarder la distribution des clients similaires :'):
-        # Nos options
 
+        # Nos options
         options = ['AGE', 'REVENU_TOTAL', 'DETTE_TOTALE']
         option_bis = ['MONTANT_CREDIT', 'MONTANT_ANNUITE', 'SCORE_EXT_1', 'SCORE_EXT_2', 'SCORE_EXT_3']
         options.extend(option_bis)
@@ -185,19 +182,11 @@ if loan_id in df_predict['SK_ID_CURR'].unique():
                 st.pyplot(fig2)
 
 
-    # Troisième graph
+    # Shap.waterfall pour l'explication des variables les plus importantes
     st.subheader('Les variables les plus importantes')
-
-    # list_index_val = [x for x in range(df_predict.shape[0])]
-    # df_predict['INDEX_VAL'] = list_index_val
-
-    # index_value = df_predict.loc[df_predict['SK_ID_CURR'] == loan_id, 'INDEX_VAL'].values[0]
-    # df_predict.drop(columns=['INDEX_VAL'], inplace=True)
 
     # On charge notre explainer
     explainer = pickle.load(open('static/shap_explainer.pkl', 'rb'))
-
-    # values = data_predict.iloc[0, :].to_frame().transpose()
 
     shap_values = explainer(data_predict.drop(columns='TARGET'))
     shap_values.values = shap_values.values.reshape(-1)
